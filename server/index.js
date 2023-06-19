@@ -9,13 +9,22 @@ app.use(express.json())
 
 //Ruta para probar si funciona en el front
 
-app.get ("/eventos", async (req,res) => {
+app.get ("/eventos", async (req, res) => {
     try {
-        const allEventos = await pool.query("SELECT * from jml_calendario_eventos");
+        const allEventos = await pool.query("SELECT * FROM jml_calendario_eventos");
         res.json(allEventos.rows);
     } catch (error) {
         console.log(error.message);
     }
+})
+
+app.get ("/eventos", async (req, res) => {
+  try {
+      const eventosD = await pool.query("SELECT * FROM  jml_calendario_eventos WHERE tipo_evento = 'D'");
+      res.json(eventosD.rows);
+  } catch (error) {
+      console.log(error.message);
+  }
 })
 
 app.listen(5000, () => {
@@ -24,8 +33,9 @@ app.listen(5000, () => {
 
 
 const vertabla = async () => {
-    const query = {
-      text: "SELECT * FROM jml_color",
+    
+  const query = {
+      text: "SELECT * FROM ",
     };
   
     try {
