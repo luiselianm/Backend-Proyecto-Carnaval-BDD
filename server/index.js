@@ -18,6 +18,33 @@ app.get ("/eventos", async (req,res) => {
     }
 })
 
+app.get ("/eventosdesfiles", async (req, res) => {
+    try {
+        const eventosD = await pool.query("SELECT * FROM  jml_calendario_eventos WHERE tipo_evento = 'D' ");
+        res.json(eventosD.rows);
+    } catch (error) {
+        console.log(error.message);
+    }
+  })
+
+  app.get ("/eventosgeneralespagos", async (req, res) => {
+    try {
+        const eventosD = await pool.query("SELECT * FROM  jml_calendario_eventos WHERE tipo_evento = 'G' AND gratis_pago = 'P' ");
+        res.json(eventosD.rows);
+    } catch (error) {
+        console.log(error.message);
+    }
+  })
+
+  app.get ("/autorizados", async (req, res) => {
+    try {
+        const autorizados = await pool.query("SELECT * FROM  jml_autorizado ");
+        res.json(autorizados.rows);
+    } catch (error) {
+        console.log(error.message);
+    }
+  })
+
 app.listen(5000, () => {
     console.log("server running on port 5000");
 })
@@ -25,7 +52,7 @@ app.listen(5000, () => {
 
 const vertabla = async () => {
     const query = {
-      text: "SELECT * FROM jml_color",
+      text: "SELECT * FROM jml_calendario_eventos WHERE tipo_evento = 'G' AND gratis_pago = 'P' ",
     };
   
     try {
