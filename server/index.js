@@ -50,7 +50,7 @@ app.get ("/eventosdesfiles", async (req, res) => {
 
 app.get ("/agregarevento", async (req, res) => {
   try {
-      const agregarEvento = await pool.query("INSERT INTO JML_calendario_eventos (id_calen_eve, ano, nombre, fecha_evento, hora_inicio, tipo_evento, tipo_audiencia, gratis_pago, descripcion) VALUES(nextval('JML_id_calen_eve'),$1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+      const agregarEvento = await pool.query("INSERT INTO JML_calendario_eventos (id_calen_eve, ano, nombre, fecha_evento, hora_inicio, tipo_evento, tipo_audiencia, gratis_pago, descripcion) VALUES(nextval('JML_id_calen_eve'), 14, $1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
        [ano, nombre, fecha_evento, hora_inicio, tipo_evento, tipo_audiencia, gratis_pago, descripcion]);
       res.json(agregarEvento.rows);
   } catch (error) {
