@@ -7,7 +7,7 @@ const pool = require("./dbConfig")
 app.use(cors());
 app.use(express.json())
 
-//Ruta para probar si funciona en el front
+//--------------------------CONSULTAS----------------------------//
 
 app.get ("/eventos", async (req, res) => {
     try {
@@ -18,33 +18,48 @@ app.get ("/eventos", async (req, res) => {
     }
 })
 
-app.get ("/eventos", async (req, res) => {
+
+app.get ("/eventosdesfiles", async (req, res) => {
+    try {
+        const eventosD = await pool.query("SELECT * FROM  jml_calendario_eventos WHERE tipo_evento = 'D' ");
+        res.json(eventosD.rows);
+    } catch (error) {
+        console.log(error.message);
+    }
+  })
+
+  app.get ("/eventosgeneralespagos", async (req, res) => {
+    try {
+        const eventosD = await pool.query("SELECT * FROM  jml_calendario_eventos WHERE tipo_evento = 'G' AND gratis_pago = 'P' ");
+        res.json(eventosD.rows);
+    } catch (error) {
+        console.log(error.message);
+    }
+  })
+
+  app.get ("/autorizados", async (req, res) => {
+    try {
+        const autorizados = await pool.query("SELECT * FROM  jml_autorizado ");
+        res.json(autorizados.rows);
+    } catch (error) {
+        console.log(error.message);
+    }
+  })
+
+//--------------------------INSERTS----------------------------//
+
+app.get ("/agregarevento", async (req, res) => {
   try {
-      const eventosD = await pool.query("SELECT * FROM  jml_calendario_eventos WHERE tipo_evento = 'D'");
-      res.json(eventosD.rows);
+      const agregarEvento = await pool.query("INSERT INTO JML_calendario_eventos (id_calen_eve, ano, nombre, fecha_evento, hora_inicio, tipo_evento, tipo_audiencia, gratis_pago, descripcion) VALUES(nextval('JML_id_calen_eve'),$1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+       [ano, nombre, fecha_evento, hora_inicio, tipo_evento, tipo_audiencia, gratis_pago, descripcion]);
+      res.json(agregarEvento.rows);
   } catch (error) {
       console.log(error.message);
   }
 })
 
+
 app.listen(5000, () => {
     console.log("server running on port 5000");
 })
 
-
-const vertabla = async () => {
-    
-  const query = {
-      text: "SELECT * FROM ",
-    };
-  
-    try {
-      const { rows } = await pool.query(query);
-      console.log(rows)
-      
-    } catch (error) {
-      console.log("error")
-    }
-  };
-
-  vertabla()
