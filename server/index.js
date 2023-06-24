@@ -27,14 +27,6 @@ app.get ("/eventosdesfiles", async (req, res) => {
     }
   })
 
-  app.get ("/eventosgeneralespagos", async (req, res) => {
-    try {
-        const eventosD = await pool.query("SELECT * FROM  jml_calendario_eventos WHERE tipo_evento = 'G' AND gratis_pago = 'P' ");
-        res.json(eventosD.rows);
-    } catch (error) {
-        console.log(error.message);
-    }
-  })
 
   app.get ("/autorizados", async (req, res) => {
     try {
@@ -57,7 +49,7 @@ app.get ("/eventosdesfiles", async (req, res) => {
   app.get("/eventosgeneralespagos", async (req, res) => {
     try {
       const eventosD = await pool.query(
-        "select c.id_calen_eve, c.nombre nombre, EXTRACT(YEAR FROM c.fecha_evento) fecha_evento, e.costo costo from jml_entrada_ev_general e, jml_calendario_eventos c where e.id_calen_eve = c.id_calen_eve and e.ano = c.ano order by fecha_evento, nombre asc"
+        "SELECT c.id_calen_eve, c.nombre nombre, c.costo, EXTRACT(YEAR FROM c.fecha_evento) fecha_evento FROM jml_calendario_eventos c WHERE c.tipo_evento = 'G' and c.gratis_pago = 'P' order by fecha_evento, nombre asc "
       );
       res.json(eventosD.rows);
     } catch (error) {
@@ -80,19 +72,23 @@ app.post ("/agregarevento", async (req, res) => {
   }
 })
 
-app.post("/agregarcosto", async (req, res) => {
+app.post("/agregarentradas", async (req, res) => {
     try {
-      const { id_calen_eve, ano, costo } = req.body;
-      const agregarEvento = await pool.query(
-        "INSERT INTO JML_entrada_ev_general (id_entrada_eveng, id_calen_eve, ano, fecha_emision, hora_emision, costo) VALUES (nextval('JML_id_entrada_eveng'), $1, $2, SYSDATE, current_timestamp, $3) RETURNING *",
-        [id_calen_eve, ano, costo]
-      );
-      res.json(agregarEvento.rows[0]);
-    } catch (error) {
-      console.log(error.message);
-    }
+        const entradasAgregadas = [];
+        const { id_calen_eve, ano, costo, cantidad } = req.body;
+        console.log(cantidad);
+        for (i = 1; i <= cantidad; i++) {
+            const agregarEvento = await pool.query(
+            "INSERT INTO JML_entrada_ev_general (id_entrada_eveng, id_calen_eve, ano, fecha_emision, hora_emision, costo) VALUES (nextval('JML_id_entrada_eveng'), $1, make_date($2,1,1), current_date, current_time, $3) RETURNING *",
+            [id_calen_eve, ano, costo]
+            );
+            entradasAgregadas.push(agregarEvento.rows[0]);
+        }
+        res.json(entradasAgregadas);
+        } catch (error) {
+        console.log(error.message);
+    } 
   });
-
 
 //------------------------UPDATES---------------------------//
 
