@@ -20,7 +20,7 @@ app.get ("/eventos", async (req, res) => {
 
 app.get ("/eventosdesfiles", async (req, res) => {
     try {
-        const eventosD = await pool.query("SELECT * FROM  jml_calendario_eventos WHERE tipo_evento = 'D' ");
+        const eventosD = await pool.query("SELECT ca.nombre, EXTRACT(YEAR FROM ca.ano) ano, to_char(fecha_evento :: DATE, 'dd/mm/yyyy') fecha_evento FROM  jml_calendario_eventos ca WHERE ca.tipo_evento = 'D' and ca.nombre <> 'Desfile de los Campeones' and ca.nombre <> 'Desfile de las escuelas de samba en el Grupo B'and ca.nombre <> 'Desfile de las Escuelas de Samba Infantiles'");
         res.json(eventosD.rows);
     } catch (error) {
         console.log(error.message);
@@ -57,6 +57,17 @@ app.get ("/eventosdesfiles", async (req, res) => {
     }
   });
 
+  app.get ("/escuelaspos", async (req, res) => {
+    try {
+      const escuelasPos = await pool.query(
+        "SELECT e.id_escuela, e.nombre, par.posicion_resultado, ca.id_calen_eve FROM jml_escuela_de_samba e, jml_participacion par, jml_calendario_eventos ca WHERE e.id_escuela = par.id_escuela and ca.id_calen_eve = par.id_calen_eve and ca.tipo_evento = 'D' and ca.nombre <> 'Desfile de los Campeones' and ca.nombre <> 'Desfile de las escuelas de samba en el Grupo B'and ca.nombre <> 'Desfile de las Escuelas de Samba Infantiles'"
+      );
+      res.json(escuelasPos.rows);
+    } catch (error) {
+      console.log(error.message);
+    }
+  })
+
 
 //--------------------------INSERTS----------------------------//
 
@@ -92,13 +103,14 @@ app.post("/agregarentradas", async (req, res) => {
 
 //------------------------UPDATES---------------------------//
 
-app.put ("/updateresults", async (req, res) => {
+app.put ("/updatepos/:id", async (req, res) => {
     try {
         const { posicion_resultado } = req.body;
-        const agregarDir = await pool.query(
-            "UPDATE jml_participacion SET posicion_resultado is null ",
-            [posicion_resultado]);
-        res.json(agregarDir.rows[0]);
+        const updatePos = await pool.query(
+            "UPDATE jml_participacion SET posicion_resultado = $1 Where posicion_resultado is null and id_escuela = $2 and id_calen_eve = $3",
+            [posicion_resultado, id_escuela, id_calen_eve]
+            );
+        res.json(updatePos.rows);
   } catch (error) {
       console.log(error.message);
   }
